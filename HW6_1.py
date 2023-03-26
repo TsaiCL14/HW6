@@ -7,7 +7,7 @@ import numpy as np
 # load model
 
 
-@st.cache
+@st.cache_data
 def load_model():
     clf = joblib.load('model_hw6.joblib')
     scaler = joblib.load('scaler_hw6.joblib')
@@ -44,7 +44,7 @@ def convert_side(side):
 clf, scaler = load_model()
 
 # 畫面設計
-st.markdown('# 生存預測系統')
+st.markdown('# 生還預測系統')
 HomePlanet_series = pd.Series(['Earth', 'Europa', 'Mars'])
 CryoSleep_series = pd.Series(['True', 'False'])
 Destination_series = pd.Series(['TRAPPIST-1e', 'PSO J318.5-22', '55 Cancri e'])
@@ -53,28 +53,40 @@ side_series = pd.Series(['P', 'S'])
 
 # '家鄉星球:', HomePlanet
 HomePlanet = st.sidebar.radio('家鄉星球:', HomePlanet_series)
+
 # '假死狀態(是否):', CryoSleep
-CryoSleep = st.sidebar.radio('假死狀態:', HomePlanet_series)
+CryoSleep = st.sidebar.radio('假死狀態:', CryoSleep_series)
+
 # '目的星球:', Destination
-Destination = st.sidebar.radio('家鄉星球:', HomePlanet_series)
+Destination = st.sidebar.radio('家鄉星球:', Destination_series)
+
 # '年齡:', Age
 Age = st.sidebar.slider('年齡', 0, 100, 20)
+
 # '客房服務消費金額:', RoomService
 RoomService = st.sidebar.slider('客房服務消費金額', 0, 10000000, 0)
+
 # '美食街消費金額:', FoodCourt
 FoodCourt = st.sidebar.slider('美食街消費金額', 0, 10000000, 0)
+
 # '購物中心消費金額:', ShoppingMall
 ShoppingMall = st.sidebar.slider('購物中心消費金額', 0, 10000000, 0)
+
 # 'SPA消費金額:', Spa
 Spa = st.sidebar.slider('SPA消費金額', 0, 10000000, 0)
+
 # 'VR消費金額:', VRDeck
 VRDeck = st.sidebar.slider('VR消費金額', 0, 10000000, 0)
+
 # '床位(甲板位置):', deck
-deck = st.sidebar.radio('床位(甲板位置):', HomePlanet_series)
+deck = st.sidebar.radio('床位(甲板位置):', deck_series)
+
 # '床位(編號):', num
 num = st.sidebar.slider('床位(編號)', 0, 1894, 0)
+
 # '床位(左舷or右舷):', side
-side = st.sidebar.radio('床位(左舷or右舷):', HomePlanet_series)
+side = st.sidebar.radio('床位(左舷or右舷):', side_series)
+
 
 # '艙等:', pclass
 # pclass = st.sidebar.selectbox('艙等:', pclass_series)
@@ -86,13 +98,13 @@ if st.sidebar.button('預測'):
     # predict
     X = []
     # pclass	sex	age	sibsp	parch	fare	adult_male	embark_town
-    adult_male = 1 if age >= 20 and sex == '男性' else 0
+    # adult_male = 1 if age >= 20 and sex == '男性' else 0
     X.append([convert_HomePlanet(HomePlanet), convert_CryoSleep(CryoSleep), convert_Destination(Destination),
               Age, RoomService, FoodCourt, ShoppingMall, Spa, VRDeck,
               convert_deck(deck), num, convert_side(side)])
     X = scaler.transform(np.array(X))
 
     if clf.predict(X) == 1:
-        st.markdown(f'### ==> **生存, 生存機率={clf.predict_proba(X)[0][1]:.2%}**')
+        st.markdown(f'### ==> **生還, 生存機率={clf.predict_proba(X)[0][1]:.2%}**')
     else:
-        st.markdown(f'### ==> **死亡, 生存機率={clf.predict_proba(X)[0][1]:.2%}**')
+        st.markdown(f'### ==> **失蹤, 生存機率={clf.predict_proba(X)[0][1]:.2%}**')
